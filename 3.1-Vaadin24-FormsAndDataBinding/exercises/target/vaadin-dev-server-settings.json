@@ -1,0 +1,17 @@
+{
+  "frontendFolder": "/home/tozetti/Área de Trabalho/Vaddin Foundation/3.1-Vaadin24-FormsAndDataBinding/exercises/./frontend",
+  "themeFolder": "themes",
+  "themeResourceFolder": "/home/tozetti/Área de Trabalho/Vaddin Foundation/3.1-Vaadin24-FormsAndDataBinding/exercises/./frontend/generated/jar-resources",
+  "staticOutput": "/home/tozetti/Área de Trabalho/Vaddin Foundation/3.1-Vaadin24-FormsAndDataBinding/exercises/target/classes/META-INF/VAADIN/webapp/VAADIN/static",
+  "generatedFolder": "generated",
+  "statsOutput": "/home/tozetti/Área de Trabalho/Vaddin Foundation/3.1-Vaadin24-FormsAndDataBinding/exercises/target/classes/META-INF/VAADIN/config",
+  "frontendBundleOutput": "/home/tozetti/Área de Trabalho/Vaddin Foundation/3.1-Vaadin24-FormsAndDataBinding/exercises/target/classes/META-INF/VAADIN/webapp",
+  "devBundleOutput": "/home/tozetti/Área de Trabalho/Vaddin Foundation/3.1-Vaadin24-FormsAndDataBinding/exercises/src/main/dev-bundle/webapp",
+  "devBundleStatsOutput": "/home/tozetti/Área de Trabalho/Vaddin Foundation/3.1-Vaadin24-FormsAndDataBinding/exercises/src/main/dev-bundle/config",
+  "jarResourcesFolder": "/home/tozetti/Área de Trabalho/Vaddin Foundation/3.1-Vaadin24-FormsAndDataBinding/exercises/./frontend/generated/jar-resources",
+  "themeName": "training",
+  "clientServiceWorkerSource": "/home/tozetti/Área de Trabalho/Vaddin Foundation/3.1-Vaadin24-FormsAndDataBinding/exercises/target/sw.ts",
+  "pwaEnabled": false,
+  "offlineEnabled": false,
+  "offlinePath": "'offline.html'"
+}

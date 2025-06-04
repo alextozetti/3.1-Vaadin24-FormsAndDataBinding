@@ -1,0 +1,4 @@
+.manually-selected-primary-item {
+    background: var(--lumo-primary-color-10pct);
+    font-weight: bold;
+}
