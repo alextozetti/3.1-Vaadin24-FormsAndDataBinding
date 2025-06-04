@@ -4,10 +4,11 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
-import com.vaadin.flow.component.applayout.DrawerToggle; // Importado
+import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H1; // Importado para o título
+import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
@@ -18,10 +19,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
-// SplitLayout e RouterLink não são mais diretamente usados para o layout principal
-// import com.vaadin.flow.component.splitlayout.SplitLayout;
-// import com.vaadin.flow.component.splitlayout.SplitLayoutVariant;
-// import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.training.forms.exercises.menu.MenuEntity;
@@ -49,6 +46,7 @@ public class BetaLayout extends AppLayout implements RouterLayout {
     // O campo selectedParentButton do código original não é mais necessário com SideNavItem
 
     public BetaLayout(MenuEntityService service) {
+
         this.service = service;
         prepareMenuData();
 
@@ -67,18 +65,53 @@ public class BetaLayout extends AppLayout implements RouterLayout {
         drawerMenuContent.setWidth("250px"); // Defina a largura desejada para o drawer
         drawerMenuContent.setHeightFull();
         addToDrawer(drawerMenuContent);
-        setPrimarySection(Section.DRAWER);
+        setPrimarySection(Section.DRAWER); // Topo cheio ou depois do drawer
 
         // 3. Criar Conteúdo da Navbar
-        DrawerToggle toggle = new DrawerToggle(); // Botão para abrir/fechar o drawer
-        toggle.getElement().setAttribute("aria-label", "Alternar Menu");
+//        DrawerToggle toggle = new DrawerToggle(); // Botão para abrir/fechar o drawer
+//        toggle.getElement().setAttribute("aria-label", "Alternar Menu");
 
-        H1 appTitle = new H1("Sistema de Compras"); // Título que estava no antigo comprasHeader
-        appTitle.getStyle().set("font-size", "var(--lumo-font-size-l)")
-                .set("line-height", "var(--lumo-line-height-m)") // Ajuste para alinhamento vertical
-                .set("margin", "0 var(--lumo-space-m)");
+// Label "Perfil Atual:"
+        Span perfilLabel = new Span("Perfil Atual: Procurement Manager");
+        perfilLabel.getStyle().set("margin-right", "4px");
 
-        addToNavbar(toggle, appTitle);
+        // Label "Perfil Atual:"
+        Span perfilDisponible = new Span("Perfis Disponíveis: ");
+        perfilLabel.getStyle().set("margin-right", "4px");
+
+// ComboBox para "Perfil Atual"
+        ComboBox<String> perfilCombo = new ComboBox<>();
+        perfilCombo.setItems("Administrador", "Usuário", "Convidado");
+        perfilCombo.setValue("Administrador");
+
+// Layout horizontal para label + ComboBox
+        HorizontalLayout perfilLayout = new HorizontalLayout(perfilLabel, perfilDisponible, perfilCombo, VaadinIcon.COMMENT_ELLIPSIS.create(), VaadinIcon.BELL.create());
+        perfilLayout.setSpacing(true);
+        perfilLayout.setPadding(false);
+        perfilLayout.setAlignItems(FlexComponent.Alignment.CENTER);
+
+// Ícone da casa e órgão
+        Icon homeIcon = VaadinIcon.HOME.create();
+        homeIcon.getStyle().set("margin-right", "8px");
+        Span orgaoSpan = new Span("Órgão: CEBW");
+        orgaoSpan.getStyle().set("font-weight", "bold").set("margin-right", "24px");
+
+// Layout principal do navbar
+        HorizontalLayout navbarContent = new HorizontalLayout(homeIcon, orgaoSpan, perfilLayout);
+        navbarContent.setSpacing(true);
+        navbarContent.setPadding(true);
+        navbarContent.setAlignItems(FlexComponent.Alignment.CENTER);
+        navbarContent.setWidthFull();
+
+// Substitua no Div do navbarTop
+        Div navbarTop = new Div(navbarContent);
+        navbarTop.getStyle()
+                .set("width", "100%")
+                .set("display", "flex")
+                .set("align-items", "center")
+                .set("background", "linear-gradient(to left, var(--lumo-primary-color-10pct), transparent 80%)");
+
+        addToNavbar(navbarTop);
 
         // 4. Configurar Menu Secundário e Área de Conteúdo Principal
         secondarySideNav = new SideNav();
@@ -92,8 +125,18 @@ public class BetaLayout extends AppLayout implements RouterLayout {
         submenuTitle.getStyle().set("padding", "var(--lumo-space-m)");
         submenuTitle.getStyle().set("display", "block");
 
-        VerticalLayout submenuLayout = new VerticalLayout(submenuTitle, secondarySideNav);
-        submenuLayout.getStyle().set("border-right", "1px solid var(--lumo-contrast-10pct)");
+        DrawerToggle toggle = new DrawerToggle(); // Botão para abrir/fechar o drawer
+        toggle.getElement().setAttribute("aria-label", "Alternar Menu");
+
+        HorizontalLayout submenuHeader = new HorizontalLayout(toggle, submenuTitle);
+        submenuHeader.setAlignItems(FlexComponent.Alignment.BASELINE);
+        submenuHeader.setPadding(false);
+        submenuHeader.setSpacing(true);
+        submenuHeader.setWidthFull();
+
+        VerticalLayout submenuLayout = new VerticalLayout(submenuHeader, secondarySideNav);
+        submenuLayout.getStyle().set("border-right", "1px solid var(--lumo-contrast-5pct)");
+        submenuLayout.getStyle().set("background", "linear-gradient(to right, var(--lumo-primary-color-10pct), transparent 80%)");
         submenuLayout.setSpacing(false);
         submenuLayout.setPadding(false);
         submenuLayout.setWidth(null); // Permitir que a largura seja definida pelo conteúdo
@@ -111,17 +154,34 @@ public class BetaLayout extends AppLayout implements RouterLayout {
         secondaryContentWrapper.setFlexGrow(1, contentArea);
 
         // 5. Configurar Rodapé
-        Div sicoiFooter = new Div(new Span("Developed by Vaadin"));
+        // Texto "Developed with:" em itálico acima da imagem
+        Span developedWith = new Span("Developed with:");
+        developedWith.getStyle()
+                .set("font-style", "italic")
+                .set("font-size", "0.7em")
+                .set("margin-bottom", "0.2em");
+
+// Imagem do rodapé
+        Image foot = new Image();
+        foot.setSrc("icons/VaadinLogo.png");
+        foot.setMaxHeight("2em");
+
+// Layout do rodapé
+        Div sicoiFooter = new Div(developedWith, foot);
         sicoiFooter.setWidthFull();
-        sicoiFooter.setHeight("60px"); // Ajuste a altura conforme necessário
-        sicoiFooter.getStyle().set("display", "flex")
+        sicoiFooter.setHeight("60px");
+        sicoiFooter.getStyle()
+                .set("display", "flex")
+                .set("flex-direction", "column")
                 .set("align-items", "center")
                 .set("justify-content", "center")
-                .set("background-color", "var(--lumo-contrast-5pct)");
+                .set("background", "linear-gradient(to right, var(--lumo-primary-color-10pct), transparent 80%)");
 
 
         // 6. Montar Layout da Página Principal para AppLayout
         VerticalLayout mainPageLayout = new VerticalLayout(secondaryContentWrapper, sicoiFooter);
+        mainPageLayout.getStyle().set("background", "linear-gradient(to right, var(--lumo-primary-color-5pct), transparent 80%)");
+
         mainPageLayout.setSizeFull();
         mainPageLayout.setPadding(false);
         mainPageLayout.setSpacing(false);
@@ -172,8 +232,9 @@ public class BetaLayout extends AppLayout implements RouterLayout {
         appName.getStyle().set("margin-top", "4px");
 
         var lineInLogo = new Hr(); // Linha que estava no logo no código original
-        lineInLogo.getStyle().set("width", "100%").set("margin", "var(--lumo-space-m) 0");
+        lineInLogo.getStyle().set("width", "0%").set("margin", "var(--lumo-space-m) 0");
         logoLayout.add(icon, appName, lineInLogo);
+
         navContainer.add(logoLayout);
 
         // Itens do Menu Principal usando SideNav
@@ -188,7 +249,16 @@ public class BetaLayout extends AppLayout implements RouterLayout {
                 // No código original, itemLayout para parentButton usava VaadinIcon.COG.create()
                 itemPrefixIcon = VaadinIcon.COG.create();
 
-                SideNavItem parentTriggerItem = new SideNavItem(currentItem.getNome(), (String) null, itemPrefixIcon);
+                //SideNavItem parentTriggerItem = new SideNavItem(currentItem.getNome(), (String) null, itemPrefixIcon);
+                if(currentItem.getLinkImage().isEmpty()){
+                    currentItem.setLinkImage("icons/gab.png");
+                }
+                Image icon2 = new Image(currentItem.getLinkImage(), "Ícone");
+                icon2.setWidth("1em");
+                icon2.setHeight("1em");
+                SideNavItem parentTriggerItem = new SideNavItem(currentItem.getNome(), (String) null, icon2);
+
+
                 parentTriggerItem.getStyle().set("cursor", "pointer");
 
                 if (initiallySelectedParentId != null && initiallySelectedParentId.equals(currentItem.getId())) {
