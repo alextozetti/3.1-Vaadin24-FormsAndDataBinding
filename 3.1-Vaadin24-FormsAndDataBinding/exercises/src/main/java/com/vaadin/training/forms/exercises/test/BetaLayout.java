@@ -5,15 +5,20 @@ import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
+import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -39,11 +44,8 @@ public class BetaLayout extends AppLayout implements RouterLayout {
     private boolean darkMode = false;
     private Map<Long, List<MenuEntity>> subMenusByParentId;
     private List<MenuEntity> topLevelMenus;
-
-    // Campos para gerenciamento da seleção do item no menu primário (drawer)
     private SideNavItem currentlySelectedPrimaryItem = null;
     private static final String SELECTED_PRIMARY_ITEM_CLASS = "manually-selected-primary-item";
-    // O campo selectedParentButton do código original não é mais necessário com SideNavItem
 
     public BetaLayout(MenuEntityService service) {
 
@@ -60,16 +62,11 @@ public class BetaLayout extends AppLayout implements RouterLayout {
         }
 
         // 2. Criar Conteúdo do Drawer (Menu Primário)
-        // createPrimaryMenuContainer agora usa SideNavItem e lida com a seleção inicial
         VerticalLayout drawerMenuContent = createPrimaryMenuContainer(initialParentIdToSelect);
         drawerMenuContent.setWidth("250px"); // Defina a largura desejada para o drawer
         drawerMenuContent.setHeightFull();
         addToDrawer(drawerMenuContent);
         setPrimarySection(Section.DRAWER); // Topo cheio ou depois do drawer
-
-        // 3. Criar Conteúdo da Navbar
-//        DrawerToggle toggle = new DrawerToggle(); // Botão para abrir/fechar o drawer
-//        toggle.getElement().setAttribute("aria-label", "Alternar Menu");
 
 // Label "Perfil Atual:"
         Span perfilLabel = new Span("Perfil Atual: Procurement Manager");
@@ -84,14 +81,44 @@ public class BetaLayout extends AppLayout implements RouterLayout {
         perfilCombo.setItems("Administrador", "Usuário", "Convidado");
         perfilCombo.setValue("Administrador");
 
+        // Avatar
+        String name = "Administrador";
+        String pictureUrl = "icons/icon.png";
+
+        Avatar avatar = new Avatar(name);
+        avatar.setImage(pictureUrl);
+
+        ContextMenu popoverMenu = new ContextMenu();
+        popoverMenu.setTarget(avatar);
+        popoverMenu.setOpenOnClick(true);
+
+        popoverMenu.addItem(VaadinIcon.USER.create(), e -> {/* ação Perfil */}).getElement().appendChild(new Span(" Perfil").getElement());
+        popoverMenu.addItem(VaadinIcon.COG.create(), e -> {/* ação Preferências */}).getElement().appendChild(new Span(" Preferências").getElement());
+
+// Item "Tema" com submenu
+        MenuItem temaItem = popoverMenu.addItem(VaadinIcon.ADJUST.create(), e -> {});
+        temaItem.getElement().appendChild(new Span(" Tema").getElement());
+        SubMenu temaSubMenu = temaItem.getSubMenu();
+        temaSubMenu.addItem(VaadinIcon.SUN_O.create(), e -> {
+            UI.getCurrent().getPage().executeJs("document.documentElement.setAttribute('theme', '')");
+        }).getElement().appendChild(new Span(" Claro").getElement());
+        temaSubMenu.addItem(VaadinIcon.MOON_O.create(), e -> {
+            UI.getCurrent().getPage().executeJs("document.documentElement.setAttribute('theme', 'dark')");
+        }).getElement().appendChild(new Span(" Escuro").getElement());
+
+        popoverMenu.addItem(VaadinIcon.QUESTION_CIRCLE.create(), e -> {/* ação Ajuda */}).getElement().appendChild(new Span(" Ajuda").getElement());
+        popoverMenu.addItem(VaadinIcon.SIGN_OUT.create(), e -> {/* ação Logout */}).getElement().appendChild(new Span(" Logout").getElement());
+
+
 // Layout horizontal para label + ComboBox
-        HorizontalLayout perfilLayout = new HorizontalLayout(perfilLabel, perfilDisponible, perfilCombo, VaadinIcon.COMMENT_ELLIPSIS.create(), VaadinIcon.BELL.create());
+        HorizontalLayout perfilLayout = new HorizontalLayout(
+                perfilLabel, perfilDisponible, perfilCombo, VaadinIcon.COMMENT_ELLIPSIS_O.create(), VaadinIcon.BELL_SLASH_O.create(), avatar);
         perfilLayout.setSpacing(true);
         perfilLayout.setPadding(false);
         perfilLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 
 // Ícone da casa e órgão
-        Icon homeIcon = VaadinIcon.HOME.create();
+        Icon homeIcon = VaadinIcon.HOME_O.create();
         homeIcon.getStyle().set("margin-right", "8px");
         Span orgaoSpan = new Span("Órgão: CEBW");
         orgaoSpan.getStyle().set("font-weight", "bold").set("margin-right", "24px");
@@ -136,7 +163,7 @@ public class BetaLayout extends AppLayout implements RouterLayout {
 
         VerticalLayout submenuLayout = new VerticalLayout(submenuHeader, secondarySideNav);
         submenuLayout.getStyle().set("border-right", "1px solid var(--lumo-contrast-5pct)");
-        submenuLayout.getStyle().set("background", "linear-gradient(to right, var(--lumo-primary-color-10pct), transparent 80%)");
+        submenuLayout.getStyle().set("background", "linear-gradient(to bottom, var(--lumo-primary-color-10pct), transparent 80%)");
         submenuLayout.setSpacing(false);
         submenuLayout.setPadding(false);
         submenuLayout.setWidth(null); // Permitir que a largura seja definida pelo conteúdo
@@ -180,7 +207,7 @@ public class BetaLayout extends AppLayout implements RouterLayout {
 
         // 6. Montar Layout da Página Principal para AppLayout
         VerticalLayout mainPageLayout = new VerticalLayout(secondaryContentWrapper, sicoiFooter);
-        mainPageLayout.getStyle().set("background", "linear-gradient(to right, var(--lumo-primary-color-5pct), transparent 80%)");
+        mainPageLayout.getStyle().set("background", "linear-gradient(to left, var(--lumo-primary-color-5pct), transparent 80%)");
 
         mainPageLayout.setSizeFull();
         mainPageLayout.setPadding(false);
@@ -250,12 +277,12 @@ public class BetaLayout extends AppLayout implements RouterLayout {
                 itemPrefixIcon = VaadinIcon.COG.create();
 
                 //SideNavItem parentTriggerItem = new SideNavItem(currentItem.getNome(), (String) null, itemPrefixIcon);
-                if(currentItem.getLinkImage().isEmpty()){
+                if (currentItem.getLinkImage() == null || currentItem.getLinkImage().isEmpty()) {
                     currentItem.setLinkImage("icons/gab.png");
                 }
                 Image icon2 = new Image(currentItem.getLinkImage(), "Ícone");
-                icon2.setWidth("1em");
-                icon2.setHeight("1em");
+                icon2.setWidth("2em");
+                icon2.setHeight("2em");
                 SideNavItem parentTriggerItem = new SideNavItem(currentItem.getNome(), (String) null, icon2);
 
 
@@ -407,3 +434,4 @@ public class BetaLayout extends AppLayout implements RouterLayout {
         }
     }
 }
+

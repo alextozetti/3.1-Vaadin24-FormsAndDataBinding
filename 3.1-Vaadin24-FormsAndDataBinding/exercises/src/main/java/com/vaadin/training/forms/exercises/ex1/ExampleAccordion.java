@@ -48,7 +48,6 @@ public class ExampleAccordion extends VerticalLayout {
         setSizeFull();
         setPadding(false);
         setSpacing(false);
-        getStyle().set("background", "linear-gradient(135deg, #e0ecff 0%, #b3cfff 50%)");
 
         SplitLayout mainSplit = new SplitLayout();
         mainSplit.setSizeFull();

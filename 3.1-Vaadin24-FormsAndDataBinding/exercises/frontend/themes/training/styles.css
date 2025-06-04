@@ -2,3 +2,8 @@
     background: var(--lumo-primary-color-10pct);
     font-weight: bold;
 }
+
+vaadin-app-layout::part(drawer) {
+    background: linear-gradient(to top, var(--lumo-primary-color-10pct), transparent 80%);
+    border-right: transparent;
+}
