@@ -24,7 +24,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.RouterLayout;
-import com.vaadin.flow.router.RouterLink;
 import com.vaadin.training.forms.exercises.menu.MenuEntity;
 import com.vaadin.training.forms.exercises.menu.MenuEntityService;
 
@@ -96,13 +95,13 @@ public class BetaLayout extends AppLayout implements RouterLayout {
         });
         openSubmenuBtn.getElement().setAttribute("aria-label", "Abrir submenu");
 
-        HorizontalLayout submenuHeader = new HorizontalLayout(toggle, closeSubmenuBtn, openSubmenuBtn);
+        HorizontalLayout submenuHeader = new HorizontalLayout(toggle, submenuTitle);
         submenuHeader.setAlignItems(FlexComponent.Alignment.BASELINE);
         submenuHeader.setPadding(false);
         submenuHeader.setSpacing(true);
         submenuHeader.setWidthFull();
 
-        VerticalLayout submenuLayout = new VerticalLayout(submenuHeader, submenuTitle, secondarySideNav);
+        VerticalLayout submenuLayout = new VerticalLayout(submenuHeader, secondarySideNav);
         submenuLayout.getStyle().set("border-right", "1px solid var(--lumo-contrast-5pct)");
         submenuLayout.getStyle().set("background", "linear-gradient(to bottom, var(--lumo-primary-color-10pct), transparent 80%)");
         submenuLayout.setSpacing(false);
@@ -114,7 +113,15 @@ public class BetaLayout extends AppLayout implements RouterLayout {
         contentArea.getStyle().set("overflow", "visible");
         contentArea.setSizeFull();
 
-        HorizontalLayout secondaryContentWrapper = new HorizontalLayout(submenuLayout, contentArea);
+        var topContent = new VerticalLayout();
+        topContent.setPadding(false);
+        topContent.setSpacing(true);
+        var horizontalLine = new HorizontalLayout(closeSubmenuBtn, openSubmenuBtn);
+        horizontalLine.getStyle().set("background", "linear-gradient(to right, var(--lumo-contrast-5pct), transparent 80%)");
+        horizontalLine.setWidthFull();
+        topContent.add(horizontalLine, contentArea);
+
+        HorizontalLayout secondaryContentWrapper = new HorizontalLayout(submenuLayout, topContent);
         secondaryContentWrapper.setSizeFull();
         secondaryContentWrapper.setSpacing(false);
         secondaryContentWrapper.setPadding(false);
@@ -124,7 +131,6 @@ public class BetaLayout extends AppLayout implements RouterLayout {
         // 5. Montar Layout da Página Principal para AppLayout
         VerticalLayout mainPageLayout = new VerticalLayout(secondaryContentWrapper, sicoiFooter());
         mainPageLayout.getStyle().set("background", "linear-gradient(to left, var(--lumo-primary-color-5pct), transparent 80%)");
-
         mainPageLayout.setSizeFull();
         mainPageLayout.setPadding(false);
         mainPageLayout.setSpacing(false);
@@ -161,12 +167,12 @@ public class BetaLayout extends AppLayout implements RouterLayout {
         logoLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         logoLayout.setPadding(false);
         logoLayout.setSpacing(false);
-        Image icon = new Image("icons/logo.png", "Gabinete");
-        icon.setWidth("40px");
-        icon.setHeight("40px");
-        Span appName = new Span("Sicoi 2.0");
+        Image icon = new Image("icons/logo.png", "Logo Sicoi");
+        icon.setWidth("50px");
+        icon.setHeight("50px");
+        Span appName = new Span("Sicoi v2.0.0-rc1 (01/01/2025)");
         appName.getStyle().set("font-weight", "bold");
-        appName.getStyle().set("font-size", "1.1em");
+        appName.getStyle().set("font-size", "0.8em");
         appName.getStyle().set("margin-top", "4px");
         var lineInLogo = new Hr();
         lineInLogo.getStyle().set("width", "0%").set("margin", "var(--lumo-space-m) 0");
