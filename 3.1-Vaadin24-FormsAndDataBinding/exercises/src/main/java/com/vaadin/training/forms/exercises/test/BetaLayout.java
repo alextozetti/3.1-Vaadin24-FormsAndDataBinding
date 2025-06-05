@@ -17,12 +17,14 @@ import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.RouterLayout;
+import com.vaadin.flow.router.RouterLink;
 import com.vaadin.training.forms.exercises.menu.MenuEntity;
 import com.vaadin.training.forms.exercises.menu.MenuEntityService;
 
@@ -79,13 +81,28 @@ public class BetaLayout extends AppLayout implements RouterLayout {
         DrawerToggle toggle = new DrawerToggle();
         toggle.getElement().setAttribute("aria-label", "Alternar Menu");
 
-        HorizontalLayout submenuHeader = new HorizontalLayout(toggle, submenuTitle);
+        // No lugar do DrawerToggle no submenuHeader, adicione um botão customizado:
+        Button closeSubmenuBtn = new Button(VaadinIcon.ARROW_LEFT.create(), e -> {
+            secondarySideNav.setVisible(false); // Esconde o submenu
+            submenuTitle.setVisible(false);     // Esconde o título do submenu
+            setDrawerOpened(false);             // Fecha o drawer
+        });
+        closeSubmenuBtn.getElement().setAttribute("aria-label", "Recolher submenu");
+
+        Button openSubmenuBtn = new Button(VaadinIcon.ARROW_RIGHT.create(), e -> {
+            secondarySideNav.setVisible(true);  // Mostra o submenu
+            submenuTitle.setVisible(true);      // Mostra o título do submenu
+            setDrawerOpened(true);              // Abre o drawer
+        });
+        openSubmenuBtn.getElement().setAttribute("aria-label", "Abrir submenu");
+
+        HorizontalLayout submenuHeader = new HorizontalLayout(toggle, closeSubmenuBtn, openSubmenuBtn);
         submenuHeader.setAlignItems(FlexComponent.Alignment.BASELINE);
         submenuHeader.setPadding(false);
         submenuHeader.setSpacing(true);
         submenuHeader.setWidthFull();
 
-        VerticalLayout submenuLayout = new VerticalLayout(submenuHeader, secondarySideNav);
+        VerticalLayout submenuLayout = new VerticalLayout(submenuHeader, submenuTitle, secondarySideNav);
         submenuLayout.getStyle().set("border-right", "1px solid var(--lumo-contrast-5pct)");
         submenuLayout.getStyle().set("background", "linear-gradient(to bottom, var(--lumo-primary-color-10pct), transparent 80%)");
         submenuLayout.setSpacing(false);
@@ -155,6 +172,7 @@ public class BetaLayout extends AppLayout implements RouterLayout {
         lineInLogo.getStyle().set("width", "0%").set("margin", "var(--lumo-space-m) 0");
         logoLayout.add(icon, appName, lineInLogo);
         navContainer.add(logoLayout);
+
         SideNav actualMenu = new SideNav();
         actualMenu.setWidthFull();
         for (MenuEntity item : topLevelMenus) {
@@ -293,6 +311,9 @@ public class BetaLayout extends AppLayout implements RouterLayout {
 
         Icon homeIcon = VaadinIcon.HOME_O.create();
         homeIcon.getStyle().set("margin-right", "8px");
+        homeIcon.addClickListener(event -> {
+            UI.getCurrent().navigate("");
+        });
         Span orgaoSpan = new Span("Órgão: CEBW");
         orgaoSpan.getStyle().set("font-weight", "bold").set("margin-right", "24px");
 
@@ -305,6 +326,9 @@ public class BetaLayout extends AppLayout implements RouterLayout {
         ComboBox<String> perfilCombo = new ComboBox<>();
         perfilCombo.setItems("Administrador", "Usuário", "Convidado");
         perfilCombo.setValue("Administrador");
+        perfilCombo.addValueChangeListener(e -> {
+            Notification.show("Perfil Selecionado: " + perfilCombo.getValue());
+        });
         left.add(homeIcon, orgaoSpan, perfilLabel, perfilDisponivel, perfilCombo);
 
         var right = new HorizontalLayout();
@@ -378,4 +402,3 @@ public class BetaLayout extends AppLayout implements RouterLayout {
         return sicoiFooter;
     }
 }
-
