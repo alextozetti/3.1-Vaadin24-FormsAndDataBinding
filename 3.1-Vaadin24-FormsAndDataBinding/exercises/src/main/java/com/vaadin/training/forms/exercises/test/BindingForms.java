@@ -1,11 +1,13 @@
 package com.vaadin.training.forms.exercises.test;
-// src/main/java/com/seuprojeto/views/AboutView.java
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -18,6 +20,7 @@ public class BindingForms extends VerticalLayout {
 		setSpacing(true);
 		setPadding(true);
 		setAlignItems(Alignment.CENTER);
+		setSizeFull(); //Ocupa toda a altura da pagina
 
 		add(new H2("Sobre o Aplicativo"));
 
@@ -47,5 +50,50 @@ public class BindingForms extends VerticalLayout {
 
 		// Adicione o botão à sua view
 		add(abrirDialogButton);
+
+
+		// Organização de 01 horizontal line com 03 horizontal lines para alinhamentos
+		var line = new HorizontalLayout();
+		line.setPadding(true);
+		line.setSpacing(true);
+		line.setWidthFull();
+		line.getStyle().set("background-color", "yellow");
+
+		var left = new HorizontalLayout();
+		left.setWidthFull();
+		left.getStyle().set("background-color", "orange");
+		left.setAlignItems(Alignment.CENTER);
+		left.setJustifyContentMode(JustifyContentMode.START);
+		var b1 = new Button(VaadinIcon.FILE_TEXT.create());
+		left.add(b1);
+
+		var center = new HorizontalLayout();
+		center.setWidthFull();
+		center.getStyle().set("background-color", "cyan");
+		center.setAlignItems(Alignment.CENTER);
+		center.setJustifyContentMode(JustifyContentMode.CENTER);
+		var c = new Button(VaadinIcon.COG.create());
+		center.add(c);
+
+		var right = new HorizontalLayout();
+		right.setWidthFull();
+		right.getStyle().set("background-color", "white");
+		right.setAlignItems(Alignment.CENTER);
+		right.setJustifyContentMode(JustifyContentMode.END);
+		var b2 = new Button(VaadinIcon.USER_CARD.create());
+		right.add(b2);
+
+		line.add(left, center, right);
+
+		add(line);
+
+		var bottom = new VerticalLayout();
+		bottom.setHeightFull();
+		bottom.getStyle().set("background-color", "gray");
+		bottom.setAlignItems(Alignment.CENTER);
+		bottom.setJustifyContentMode(JustifyContentMode.END);
+		bottom.add(new Span("Fundo da pagina"));
+		add(bottom);
+
 	}
 }

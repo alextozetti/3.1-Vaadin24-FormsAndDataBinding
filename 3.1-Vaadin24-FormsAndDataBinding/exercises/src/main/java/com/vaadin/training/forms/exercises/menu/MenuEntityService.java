@@ -1,7 +1,5 @@
 package com.vaadin.training.forms.exercises.menu;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +15,8 @@ public class MenuEntityService {
         return repository.findAll();
     }
 
-    public MenuEntity save(MenuEntity entity) {
-        return repository.save(entity);
+    public void save(MenuEntity entity) {
+        repository.save(entity);
     }
 
     public void delete(Long id) {

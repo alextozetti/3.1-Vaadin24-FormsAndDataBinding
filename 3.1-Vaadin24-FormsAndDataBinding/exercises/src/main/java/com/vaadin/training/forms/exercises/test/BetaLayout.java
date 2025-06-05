@@ -17,14 +17,11 @@ import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.menubar.MenuBar;
-import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
-import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.training.forms.exercises.menu.MenuEntity;
 import com.vaadin.training.forms.exercises.menu.MenuEntityService;
@@ -34,21 +31,18 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Route("beta")
 public class BetaLayout extends AppLayout implements RouterLayout {
 
     private final Div contentArea;
     private final SideNav secondarySideNav;
     private final MenuEntityService service;
     private final Span submenuTitle;
-    private boolean darkMode = false;
     private Map<Long, List<MenuEntity>> subMenusByParentId;
     private List<MenuEntity> topLevelMenus;
     private SideNavItem currentlySelectedPrimaryItem = null;
     private static final String SELECTED_PRIMARY_ITEM_CLASS = "manually-selected-primary-item";
 
     public BetaLayout(MenuEntityService service) {
-
         this.service = service;
         prepareMenuData();
 
@@ -63,82 +57,12 @@ public class BetaLayout extends AppLayout implements RouterLayout {
 
         // 2. Criar Conteúdo do Drawer (Menu Primário)
         VerticalLayout drawerMenuContent = createPrimaryMenuContainer(initialParentIdToSelect);
-        drawerMenuContent.setWidth("250px"); // Defina a largura desejada para o drawer
         drawerMenuContent.setHeightFull();
         addToDrawer(drawerMenuContent);
         setPrimarySection(Section.DRAWER); // Topo cheio ou depois do drawer
 
-// Label "Perfil Atual:"
-        Span perfilLabel = new Span("Perfil Atual: Procurement Manager");
-        perfilLabel.getStyle().set("margin-right", "4px");
-
-        // Label "Perfil Atual:"
-        Span perfilDisponible = new Span("Perfis Disponíveis: ");
-        perfilLabel.getStyle().set("margin-right", "4px");
-
-// ComboBox para "Perfil Atual"
-        ComboBox<String> perfilCombo = new ComboBox<>();
-        perfilCombo.setItems("Administrador", "Usuário", "Convidado");
-        perfilCombo.setValue("Administrador");
-
-        // Avatar
-        String name = "Administrador";
-        String pictureUrl = "icons/icon.png";
-
-        Avatar avatar = new Avatar(name);
-        avatar.setImage(pictureUrl);
-
-        ContextMenu popoverMenu = new ContextMenu();
-        popoverMenu.setTarget(avatar);
-        popoverMenu.setOpenOnClick(true);
-
-        popoverMenu.addItem(VaadinIcon.USER.create(), e -> {/* ação Perfil */}).getElement().appendChild(new Span(" Perfil").getElement());
-        popoverMenu.addItem(VaadinIcon.COG.create(), e -> {/* ação Preferências */}).getElement().appendChild(new Span(" Preferências").getElement());
-
-// Item "Tema" com submenu
-        MenuItem temaItem = popoverMenu.addItem(VaadinIcon.ADJUST.create(), e -> {});
-        temaItem.getElement().appendChild(new Span(" Tema").getElement());
-        SubMenu temaSubMenu = temaItem.getSubMenu();
-        temaSubMenu.addItem(VaadinIcon.SUN_O.create(), e -> {
-            UI.getCurrent().getPage().executeJs("document.documentElement.setAttribute('theme', '')");
-        }).getElement().appendChild(new Span(" Claro").getElement());
-        temaSubMenu.addItem(VaadinIcon.MOON_O.create(), e -> {
-            UI.getCurrent().getPage().executeJs("document.documentElement.setAttribute('theme', 'dark')");
-        }).getElement().appendChild(new Span(" Escuro").getElement());
-
-        popoverMenu.addItem(VaadinIcon.QUESTION_CIRCLE.create(), e -> {/* ação Ajuda */}).getElement().appendChild(new Span(" Ajuda").getElement());
-        popoverMenu.addItem(VaadinIcon.SIGN_OUT.create(), e -> {/* ação Logout */}).getElement().appendChild(new Span(" Logout").getElement());
-
-
-// Layout horizontal para label + ComboBox
-        HorizontalLayout perfilLayout = new HorizontalLayout(
-                perfilLabel, perfilDisponible, perfilCombo, VaadinIcon.COMMENT_ELLIPSIS_O.create(), VaadinIcon.BELL_SLASH_O.create(), avatar);
-        perfilLayout.setSpacing(true);
-        perfilLayout.setPadding(false);
-        perfilLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-
-// Ícone da casa e órgão
-        Icon homeIcon = VaadinIcon.HOME_O.create();
-        homeIcon.getStyle().set("margin-right", "8px");
-        Span orgaoSpan = new Span("Órgão: CEBW");
-        orgaoSpan.getStyle().set("font-weight", "bold").set("margin-right", "24px");
-
-// Layout principal do navbar
-        HorizontalLayout navbarContent = new HorizontalLayout(homeIcon, orgaoSpan, perfilLayout);
-        navbarContent.setSpacing(true);
-        navbarContent.setPadding(true);
-        navbarContent.setAlignItems(FlexComponent.Alignment.CENTER);
-        navbarContent.setWidthFull();
-
-// Substitua no Div do navbarTop
-        Div navbarTop = new Div(navbarContent);
-        navbarTop.getStyle()
-                .set("width", "100%")
-                .set("display", "flex")
-                .set("align-items", "center")
-                .set("background", "linear-gradient(to left, var(--lumo-primary-color-10pct), transparent 80%)");
-
-        addToNavbar(navbarTop);
+        // 3. Adicionar Topo
+        addToNavbar(itensTopo());
 
         // 4. Configurar Menu Secundário e Área de Conteúdo Principal
         secondarySideNav = new SideNav();
@@ -152,7 +76,7 @@ public class BetaLayout extends AppLayout implements RouterLayout {
         submenuTitle.getStyle().set("padding", "var(--lumo-space-m)");
         submenuTitle.getStyle().set("display", "block");
 
-        DrawerToggle toggle = new DrawerToggle(); // Botão para abrir/fechar o drawer
+        DrawerToggle toggle = new DrawerToggle();
         toggle.getElement().setAttribute("aria-label", "Alternar Menu");
 
         HorizontalLayout submenuHeader = new HorizontalLayout(toggle, submenuTitle);
@@ -180,33 +104,8 @@ public class BetaLayout extends AppLayout implements RouterLayout {
         secondaryContentWrapper.setFlexGrow(0, submenuLayout);
         secondaryContentWrapper.setFlexGrow(1, contentArea);
 
-        // 5. Configurar Rodapé
-        // Texto "Developed with:" em itálico acima da imagem
-        Span developedWith = new Span("Developed with:");
-        developedWith.getStyle()
-                .set("font-style", "italic")
-                .set("font-size", "0.7em")
-                .set("margin-bottom", "0.2em");
-
-// Imagem do rodapé
-        Image foot = new Image();
-        foot.setSrc("icons/VaadinLogo.png");
-        foot.setMaxHeight("2em");
-
-// Layout do rodapé
-        Div sicoiFooter = new Div(developedWith, foot);
-        sicoiFooter.setWidthFull();
-        sicoiFooter.setHeight("60px");
-        sicoiFooter.getStyle()
-                .set("display", "flex")
-                .set("flex-direction", "column")
-                .set("align-items", "center")
-                .set("justify-content", "center")
-                .set("background", "linear-gradient(to right, var(--lumo-primary-color-10pct), transparent 80%)");
-
-
-        // 6. Montar Layout da Página Principal para AppLayout
-        VerticalLayout mainPageLayout = new VerticalLayout(secondaryContentWrapper, sicoiFooter);
+        // 5. Montar Layout da Página Principal para AppLayout
+        VerticalLayout mainPageLayout = new VerticalLayout(secondaryContentWrapper, sicoiFooter());
         mainPageLayout.getStyle().set("background", "linear-gradient(to left, var(--lumo-primary-color-5pct), transparent 80%)");
 
         mainPageLayout.setSizeFull();
@@ -215,7 +114,7 @@ public class BetaLayout extends AppLayout implements RouterLayout {
         mainPageLayout.setFlexGrow(1, secondaryContentWrapper);
         setContent(mainPageLayout);
 
-        // 7. Estado Inicial do Submenu
+        // 6. Estado Inicial do Submenu
         if (defaultParentOptional.isPresent()) {
             updateSecondaryMenu(defaultParentOptional.get().getId());
         } else {
@@ -229,7 +128,6 @@ public class BetaLayout extends AppLayout implements RouterLayout {
         topLevelMenus = allMenus.stream()
                 .filter(item -> item.getParentId() == null)
                 .collect(Collectors.toList());
-
         subMenusByParentId = allMenus.stream()
                 .filter(item -> item.getParentId() != null)
                 .collect(Collectors.groupingBy(MenuEntity::getParentId));
@@ -238,45 +136,31 @@ public class BetaLayout extends AppLayout implements RouterLayout {
     private VerticalLayout createPrimaryMenuContainer(Long initiallySelectedParentId) {
         VerticalLayout navContainer = new VerticalLayout();
         navContainer.setSpacing(false);
-        navContainer.setPadding(true); // Padding interno para o conteúdo do drawer
+        navContainer.setPadding(true);
         navContainer.setHeightFull();
-        navContainer.getStyle().set("overflow-y", "auto"); // Habilitar rolagem se necessário
-
-        // Logo
+        navContainer.getStyle().set("overflow-y", "auto");
         VerticalLayout logoLayout = new VerticalLayout();
         logoLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-        logoLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER); // Ou .START
+        logoLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         logoLayout.setPadding(false);
         logoLayout.setSpacing(false);
-
         Image icon = new Image("icons/logo.png", "Gabinete");
         icon.setWidth("40px");
         icon.setHeight("40px");
-
         Span appName = new Span("Sicoi 2.0");
         appName.getStyle().set("font-weight", "bold");
         appName.getStyle().set("font-size", "1.1em");
         appName.getStyle().set("margin-top", "4px");
-
-        var lineInLogo = new Hr(); // Linha que estava no logo no código original
+        var lineInLogo = new Hr();
         lineInLogo.getStyle().set("width", "0%").set("margin", "var(--lumo-space-m) 0");
         logoLayout.add(icon, appName, lineInLogo);
-
         navContainer.add(logoLayout);
-
-        // Itens do Menu Principal usando SideNav
         SideNav actualMenu = new SideNav();
-        actualMenu.setWidthFull(); // Para preencher a largura do navContainer
-
+        actualMenu.setWidthFull();
         for (MenuEntity item : topLevelMenus) {
             final MenuEntity currentItem = item;
-            Component itemPrefixIcon; // Usaremos Component para o prefixo do ícone
-
-            if (subMenusByParentId.containsKey(currentItem.getId())) { // Item pai (abre submenu)
-                // No código original, itemLayout para parentButton usava VaadinIcon.COG.create()
-                itemPrefixIcon = VaadinIcon.COG.create();
-
-                //SideNavItem parentTriggerItem = new SideNavItem(currentItem.getNome(), (String) null, itemPrefixIcon);
+            Component itemPrefixIcon;
+            if (subMenusByParentId.containsKey(currentItem.getId())) {
                 if (currentItem.getLinkImage() == null || currentItem.getLinkImage().isEmpty()) {
                     currentItem.setLinkImage("icons/gab.png");
                 }
@@ -284,15 +168,11 @@ public class BetaLayout extends AppLayout implements RouterLayout {
                 icon2.setWidth("2em");
                 icon2.setHeight("2em");
                 SideNavItem parentTriggerItem = new SideNavItem(currentItem.getNome(), (String) null, icon2);
-
-
                 parentTriggerItem.getStyle().set("cursor", "pointer");
-
                 if (initiallySelectedParentId != null && initiallySelectedParentId.equals(currentItem.getId())) {
                     parentTriggerItem.getElement().getClassList().add(SELECTED_PRIMARY_ITEM_CLASS);
                     currentlySelectedPrimaryItem = parentTriggerItem;
                 }
-
                 parentTriggerItem.getElement().addEventListener("click", event -> {
                     if (currentlySelectedPrimaryItem != null && currentlySelectedPrimaryItem != parentTriggerItem) {
                         currentlySelectedPrimaryItem.getElement().getClassList().remove(SELECTED_PRIMARY_ITEM_CLASS);
@@ -302,9 +182,7 @@ public class BetaLayout extends AppLayout implements RouterLayout {
                     UI.getCurrent().access(() -> updateSecondaryMenu(currentItem.getId()));
                 });
                 actualMenu.addItem(parentTriggerItem);
-
-            } else { // Item de link ou estático
-                // No código original, itemLayout para RouterLink usava new Image("icons/file.png", "Item")
+            } else {
                 itemPrefixIcon = new Image("icons/file.png", "Item");
                 ((Image) itemPrefixIcon).setWidth("20px");
                 ((Image) itemPrefixIcon).setHeight("20px");
@@ -319,55 +197,26 @@ public class BetaLayout extends AppLayout implements RouterLayout {
                             currentlySelectedPrimaryItem.getElement().getClassList().remove(SELECTED_PRIMARY_ITEM_CLASS);
                             currentlySelectedPrimaryItem = null;
                         }
-                        // A seleção baseada em rota do SideNav deve funcionar automaticamente
                     });
-                } else { // Item estático
+                } else {
                     navOrStaticItem = new SideNavItem(currentItem.getNome(), (String) null, itemPrefixIcon);
                 }
                 actualMenu.addItem(navOrStaticItem);
             }
         }
         navContainer.add(actualMenu);
-
-        // Spacer e Seletor de Tema
-        Div spacer = new Div();
-        navContainer.add(spacer);
-        navContainer.setFlexGrow(1, spacer); // Empurra o seletor de tema para baixo
-
-        var divider = new Hr();
-        divider.getStyle().set("width", "100%").set("margin", "var(--lumo-space-m) 0");
-
-        Button themeToggle = new Button(new Icon(VaadinIcon.MOON_O));
-        themeToggle.setWidthFull();
-        themeToggle.getElement().setProperty("title", "Alternar tema claro/escuro");
-        themeToggle.addClickListener(e -> {
-            darkMode = !darkMode;
-            // Alternar tema usando atributo no elemento <html>
-            String themeAttribute = darkMode ? "dark" : ""; // Lumo usa 'dark'. String vazia pode remover o atributo.
-            UI.getCurrent().getPage().executeJs("document.documentElement.setAttribute('theme', $0)", themeAttribute);
-            themeToggle.setIcon(new Icon(darkMode ? VaadinIcon.SUN_O : VaadinIcon.MOON_O));
-        });
-        navContainer.add(divider, themeToggle);
-
         return navContainer;
     }
 
     private SideNavItem createSideNavItemHierarchy(MenuEntity menuEntity) {
         Class<? extends Component> targetClass = getClassByName(menuEntity.getRotaClass());
         SideNavItem navItem;
-        // Opcional: Adicionar ícones aos itens do submenu também
-        // Image subItemIcon = menuEntity.getIconPath() != null ? new Image(menuEntity.getIconPath(), "icon") : null;
-        // if (subItemIcon != null) { subItemIcon.setWidth("16px"); subItemIcon.setHeight("16px"); }
-
-        Component prefix = null; // Defina seu ícone aqui se desejar
-        // Exemplo: prefix = VaadinIcon.CIRCLE_THIN.create();
-
+        Component prefix = null;
         if (targetClass != null) {
             navItem = new SideNavItem(menuEntity.getNome(), targetClass, prefix);
         } else {
             navItem = new SideNavItem(menuEntity.getNome(), (String) null, prefix);
         }
-
         if (subMenusByParentId.containsKey(menuEntity.getId())) {
             List<MenuEntity> children = subMenusByParentId.get(menuEntity.getId());
             if (children != null) {
@@ -383,18 +232,15 @@ public class BetaLayout extends AppLayout implements RouterLayout {
         MenuEntity parent = topLevelMenus.stream()
                 .filter(item -> item.getId().equals(parentId))
                 .findFirst().orElse(null);
-
-        if (parent == null) { // Verificação de segurança
+        if (parent == null) {
             submenuTitle.setVisible(false);
             secondarySideNav.setVisible(false);
             return;
         }
         submenuTitle.setText(parent.getNome());
         submenuTitle.setVisible(true);
-
         secondarySideNav.removeAll();
         List<MenuEntity> children = subMenusByParentId.get(parentId);
-
         if (children != null && !children.isEmpty()) {
             for (MenuEntity child : children) {
                 secondarySideNav.addItem(createSideNavItemHierarchy(child));
@@ -402,17 +248,16 @@ public class BetaLayout extends AppLayout implements RouterLayout {
             secondarySideNav.setVisible(true);
         } else {
             secondarySideNav.setVisible(false);
-            // submenuTitle.setVisible(false); // Opcional: esconder título se não há itens no submenu
         }
     }
 
     @Override
     public void showRouterLayoutContent(HasElement content) {
         contentArea.removeAll();
-        if (content != null) { // Verificação de segurança
+        if (content != null) {
             if (content instanceof Component) {
                 contentArea.add((Component) content);
-            } else if (content.getElement() != null) { // Checagem adicional
+            } else if (content.getElement() != null) {
                 contentArea.getElement().appendChild(content.getElement());
             }
         }
@@ -425,13 +270,112 @@ public class BetaLayout extends AppLayout implements RouterLayout {
         try {
             return Class.forName(className).asSubclass(Component.class);
         } catch (ClassNotFoundException e) {
-            // Em vez de printStackTrace, considere um log mais apropriado para produção
             System.err.println("Classe de navegação não encontrada: " + className + ". " + e.getMessage());
             return null;
         } catch (ClassCastException e) {
             System.err.println("A classe " + className + " não é um Componente Vaadin. " + e.getMessage());
             return null;
         }
+    }
+
+    // Topo dividido em 02 partes: left e right
+    private Component itensTopo() {
+        var line = new HorizontalLayout();
+        line.getStyle().set("background", "linear-gradient(to left, var(--lumo-primary-color-10pct), transparent 80%)");
+        line.setPadding(true);
+        line.setSpacing(true);
+        line.setWidthFull();
+
+        var left = new HorizontalLayout();
+        left.setWidth("80%");
+        left.setAlignItems(FlexComponent.Alignment.CENTER);
+        left.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
+
+        Icon homeIcon = VaadinIcon.HOME_O.create();
+        homeIcon.getStyle().set("margin-right", "8px");
+        Span orgaoSpan = new Span("Órgão: CEBW");
+        orgaoSpan.getStyle().set("font-weight", "bold").set("margin-right", "24px");
+
+        Span perfilLabel = new Span("Perfil Atual: Procurement Manager");
+        perfilLabel.getStyle().set("margin-right", "4px");
+
+        Span perfilDisponivel = new Span("Perfis Disponíveis: ");
+        perfilLabel.getStyle().set("margin-right", "4px");
+
+        ComboBox<String> perfilCombo = new ComboBox<>();
+        perfilCombo.setItems("Administrador", "Usuário", "Convidado");
+        perfilCombo.setValue("Administrador");
+        left.add(homeIcon, orgaoSpan, perfilLabel, perfilDisponivel, perfilCombo);
+
+        var right = new HorizontalLayout();
+        right.setWidth("20%");
+        right.setAlignItems(FlexComponent.Alignment.CENTER);
+        right.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+        var b1 = new Button(VaadinIcon.COMMENT_ELLIPSIS_O.create());
+        var b2 = new Button(VaadinIcon.BELL_SLASH_O.create());
+        right.add(b1, b2, avatar());
+
+        line.add(left, right);
+        return line;
+    }
+
+    private Component avatar() {
+        // Avatar
+        String name = "Administrador";
+        String pictureUrl = "icons/icon.png";
+
+        Avatar avatar = new Avatar(name);
+        avatar.setImage(pictureUrl);
+
+        ContextMenu popoverMenu = new ContextMenu();
+        popoverMenu.setTarget(avatar);
+        popoverMenu.setOpenOnClick(true);
+
+        popoverMenu.addItem(VaadinIcon.USER.create(), e -> {/* ação Perfil */}).getElement().appendChild(new Span(" Perfil").getElement());
+        popoverMenu.addItem(VaadinIcon.COG.create(), e -> {/* ação Preferências */}).getElement().appendChild(new Span(" Preferências").getElement());
+
+        // Item "Tema" com submenu
+        MenuItem temaItem = popoverMenu.addItem(VaadinIcon.ADJUST.create(), e -> {});
+        temaItem.getElement().appendChild(new Span(" Tema").getElement());
+        SubMenu temaSubMenu = temaItem.getSubMenu();
+        temaSubMenu.addItem(VaadinIcon.SUN_O.create(), e -> {
+            UI.getCurrent().getPage().executeJs("document.documentElement.setAttribute('theme', '')");
+        }).getElement().appendChild(new Span(" Claro").getElement());
+        temaSubMenu.addItem(VaadinIcon.MOON_O.create(), e -> {
+            UI.getCurrent().getPage().executeJs("document.documentElement.setAttribute('theme', 'dark')");
+        }).getElement().appendChild(new Span(" Escuro").getElement());
+
+        popoverMenu.addItem(VaadinIcon.QUESTION_CIRCLE.create(), e -> {/* ação Ajuda */}).getElement().appendChild(new Span(" Ajuda").getElement());
+        popoverMenu.addItem(VaadinIcon.SIGN_OUT.create(), e -> {/* ação Logout */}).getElement().appendChild(new Span(" Logout").getElement());
+
+        return avatar;
+    }
+
+    private Component sicoiFooter() {
+        // Texto "Developed with:" em itálico acima da imagem
+        Span developedWith = new Span("Developed with:");
+        developedWith.getStyle()
+                .set("font-style", "italic")
+                .set("font-size", "0.7em")
+                .set("margin-bottom", "0.2em");
+
+        // Imagem do rodapé
+        Image foot = new Image();
+        foot.setSrc("icons/VaadinLogo.png");
+        foot.setMaxHeight("2em");
+
+        // Layout do rodapé
+        Div sicoiFooter = new Div(developedWith, foot);
+        sicoiFooter.setWidthFull();
+        sicoiFooter.setHeight("60px");
+        sicoiFooter.getStyle()
+                .set("display", "flex")
+                .set("flex-direction", "column")
+                .set("align-items", "center")
+                .set("justify-content", "center")
+                .set("background", "linear-gradient(to right, var(--lumo-primary-color-10pct), transparent 80%)");
+
+        return sicoiFooter;
     }
 }
 
