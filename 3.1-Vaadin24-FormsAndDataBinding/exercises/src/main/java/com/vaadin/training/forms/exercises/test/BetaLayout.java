@@ -81,19 +81,12 @@ public class BetaLayout extends AppLayout implements RouterLayout {
         toggle.getElement().setAttribute("aria-label", "Alternar Menu");
 
         // No lugar do DrawerToggle no submenuHeader, adicione um botão customizado:
-        Button closeSubmenuBtn = new Button(VaadinIcon.ARROW_LEFT.create(), e -> {
-            secondarySideNav.setVisible(false); // Esconde o submenu
-            submenuTitle.setVisible(false);     // Esconde o título do submenu
-            setDrawerOpened(false);             // Fecha o drawer
+        Button openCloseSubmenuBtn = new Button(VaadinIcon.MENU.create(), e -> {
+            boolean isOpen = secondarySideNav.isVisible();
+            secondarySideNav.setVisible(!isOpen);
+            submenuTitle.setVisible(!isOpen);
+            setDrawerOpened(!isOpen);
         });
-        closeSubmenuBtn.getElement().setAttribute("aria-label", "Recolher submenu");
-
-        Button openSubmenuBtn = new Button(VaadinIcon.ARROW_RIGHT.create(), e -> {
-            secondarySideNav.setVisible(true);  // Mostra o submenu
-            submenuTitle.setVisible(true);      // Mostra o título do submenu
-            setDrawerOpened(true);              // Abre o drawer
-        });
-        openSubmenuBtn.getElement().setAttribute("aria-label", "Abrir submenu");
 
         HorizontalLayout submenuHeader = new HorizontalLayout(toggle, submenuTitle);
         submenuHeader.setAlignItems(FlexComponent.Alignment.BASELINE);
@@ -116,7 +109,7 @@ public class BetaLayout extends AppLayout implements RouterLayout {
         var topContent = new VerticalLayout();
         topContent.setPadding(false);
         topContent.setSpacing(true);
-        var horizontalLine = new HorizontalLayout(closeSubmenuBtn, openSubmenuBtn);
+        var horizontalLine = new HorizontalLayout(openCloseSubmenuBtn);
         horizontalLine.getStyle().set("background", "linear-gradient(to right, var(--lumo-contrast-5pct), transparent 80%)");
         horizontalLine.setWidthFull();
         topContent.add(horizontalLine, contentArea);

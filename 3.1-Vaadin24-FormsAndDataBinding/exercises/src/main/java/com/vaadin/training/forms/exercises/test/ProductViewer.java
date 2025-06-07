@@ -10,6 +10,7 @@ import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import jakarta.annotation.security.PermitAll;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,60 +26,6 @@ public class ProductViewer extends VerticalLayout {
         setSizeFull();
 
         add(new H2("Página do Dashboard"));
-
-        SideNav sideNav = new SideNav();
-        sideNav.setLabel("Menu Acordeão");
-
-        // 1. Lista para gerenciar todos os itens que podem ser expandidos/colapsados
-        List<SideNavItem> collapsibleItems = new ArrayList<>();
-
-        // --- Criando os Itens do Menu ---
-
-        // Item 1 (Pai)
-        SideNavItem parent1 = new SideNavItem("Clientes");
-        parent1.addItem(new SideNavItem("Novo Cliente"));
-        parent1.addItem(new SideNavItem("Listar Clientes"));
-        collapsibleItems.add(parent1); // Adiciona à lista de gerenciamento
-
-        // Item 2 (Pai)
-        SideNavItem parent2 = new SideNavItem("Produtos");
-        parent2.addItem(new SideNavItem("Novo Produto"));
-        parent2.addItem(new SideNavItem("Estoque"));
-        collapsibleItems.add(parent2); // Adiciona à lista de gerenciamento
-
-        // Item 3 (Pai)
-        SideNavItem parent3 = new SideNavItem("Relatórios");
-        parent3.setExpanded(true); // Pode definir um item para começar aberto
-        parent3.addItem(new SideNavItem("Vendas por Período"));
-        parent3.addItem(new SideNavItem("Clientes Ativos"));
-        collapsibleItems.add(parent3); // Adiciona à lista de gerenciamento
-
-        // Item 4 (Item simples, sem filhos)
-        SideNavItem simpleItem = new SideNavItem("Configurações");
-
-
-        // Adiciona os itens ao SideNav
-        sideNav.addItem(parent1, parent2, parent3, simpleItem);
-
-
-        // 2. Adicionar o listener para criar o comportamento de acordeão
-        for (SideNavItem itemToListenOn : collapsibleItems) {
-            itemToListenOn.getElement().addEventListener("click", e -> {
-                // 3. Quando um item é clicado, fecha todos os outros
-                for (SideNavItem otherItem : collapsibleItems) {
-                    // A condição `!=` garante que não fechamos o item que acabamos de clicar
-                    if (otherItem != itemToListenOn) {
-                        otherItem.setExpanded(false);
-                    }
-                }
-            });
-        }
-
-        add(sideNav);
-        setSizeFull();
-        setJustifyContentMode(JustifyContentMode.CENTER);
-        setAlignItems(Alignment.CENTER);
-
 
 
         // Conteúdo expansível para empurrar a linha para o rodapé
